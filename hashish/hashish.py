@@ -5,6 +5,19 @@ import argparse
 import sys
 import hashlib
 
+def hash_section(elf_file, section):
+    try:
+        elffile = ELFFile(elf_file)
+        elf_section = elffile.get_section_by_name(section)
+
+        if elf_section is None:
+            raise Exception('{section} is not a valid section in {elf_file}.'.format(section=section, elf_file=elf_file.name))
+        else:
+            return hashlib.sha256(elf_section.data()).hexdigest()
+
+    except ELFError:
+        raise Exception('{elf_file} is not a valid ELF file.'.format(elf_file=elf_file.name))
+
 def main():
     parser = argparse.ArgumentParser(description='Compute hash of an ELF binary\'s section.')
     parser.add_argument('elf_file', type=argparse.FileType('rb'),
@@ -14,19 +27,12 @@ def main():
     args = parser.parse_args()
 
     try:
-        elffile = ELFFile(args.elf_file)
-        section = elffile.get_section_by_name(args.section)
-
-        if section is None:
-            print('{section} is not a valid section in {elf_file}.'.format(section=args.section, elf_file=args.elf_file.name))
-            sys.exit(1)
-        else:
-            hashed = hashlib.sha256(section.data()).hexdigest()
-            print(hashed)
-
-    except ELFError:
-        print('{elf_file} is not a valid ELF file.'.format(elf_file=args.elf_file.name))
+        hashed = hash_section(args.elf_file, args.section)
+        print(hashed)
+    except Exception as exc:
+        print('{}: {}'.format(type(exc).__name__, exc))
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
