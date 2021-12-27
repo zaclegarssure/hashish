@@ -4,6 +4,9 @@ version = "0.1.0"
 description = ""
 authors = ["Zacharie Tevaearai <zacharie.tevaearai@epfl.ch>"]
 
+[tool.poetry.scripts]
+cli = "hashish.hashish:main"
+
 [tool.poetry.dependencies]
 python = "^3.10"
 pyelftools = "^0.27"
